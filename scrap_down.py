@@ -4,7 +4,6 @@ import sys
 import os
 import logging
 from pythonjsonlogger import jsonlogger
-import time 
 
 
 companies = ["pix", "sefaz", "nota-fiscal-eletronica",
@@ -13,7 +12,8 @@ companies = ["pix", "sefaz", "nota-fiscal-eletronica",
              "cloudflare", "ifood", "99", "telegram"]
 
 
-JSON_FILE = "/app/data/downdetector_status.json"
+JSON_FILE = "downdetector_status.json"
+
 
 css_script = 'script[type="text/javascript"]:contains("{ x:")::text'
 
@@ -34,7 +34,7 @@ def setup_logger():
 
 logger = setup_logger()
 
-def get_site(url, loaddom):
+def get_site(url):
     css_script = 'script[type="text/javascript"]:contains("{ x:")'
     max_attempts = 5
     attempts = 0
@@ -51,13 +51,12 @@ def get_site(url, loaddom):
                 real_chrome=True,
                 hide_canvas=True,
                 google_search=True,
-                headless=True,
+                headless=False,
                 allow_webgl=False,
-                wait=2000,
-                load_dom=loaddom,
+                wait=1000,
                 wait_selector='script[type="text/javascript"]',
                 wait_selector_state='attached',
-                timeout=30000
+                timeout=10000
             )
         except Exception as e:
             logger.error("erro no fetch", extra={
@@ -92,7 +91,7 @@ def get_site(url, loaddom):
 def get_script():
     for url in companies:
         try:
-            page = get_site(url, False)
+            page = get_site(url)
 
             if not page:
                 continue
