@@ -4,8 +4,7 @@ from fastapi import FastAPI, HTTPException
 
 app = FastAPI(title="Downdetector API")
 
-JSON_FILE = "downdetector_status.json"
-
+JSON_FILE = "/app/data/downdetector_status.json"
 def load_json():
     if not os.path.exists(JSON_FILE):
         return []

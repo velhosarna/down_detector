@@ -1,0 +1,54 @@
+[
+  {
+    "empresa": "Pix",
+    "company_status": "success"
+  },
+  {
+    "empresa": "Sefaz",
+    "company_status": "success"
+  },
+  {
+    "empresa": "Nota fiscal eletrônica",
+    "company_status": "warning"
+  },
+  {
+    "empresa": "Cielo",
+    "company_status": "success"
+  },
+  {
+    "empresa": "Rede",
+    "company_status": "success"
+  },
+  {
+    "empresa": "PagSeguro",
+    "company_status": "success"
+  },
+  {
+    "empresa": "Mercado Pago",
+    "company_status": "success"
+  },
+  {
+    "empresa": "Amazon Web Services",
+    "company_status": "success"
+  },
+  {
+    "empresa": "Microsoft Azure",
+    "company_status": "success"
+  },
+  {
+    "empresa": "Cloudflare",
+    "company_status": "success"
+  },
+  {
+    "empresa": "iFood",
+    "company_status": "success"
+  },
+  {
+    "empresa": "99",
+    "company_status": "success"
+  },
+  {
+    "empresa": "Telegram",
+    "company_status": "success"
+  }
+]

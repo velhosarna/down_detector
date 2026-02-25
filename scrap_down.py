@@ -1,19 +1,21 @@
 from scrapling.fetchers import StealthyFetcher
+import random
+import concurrent.futures
 import json
 import sys
 import os
 import logging
 from pythonjsonlogger import jsonlogger
+import time 
 
 
 companies = ["pix", "sefaz", "nota-fiscal-eletronica",
-             "cielo", "Rede", "pagseguro",
+             "cielo", "rede", "pagseguro",
              "mercadopago", "aws-amazon-web-services", "windows-azure",
              "cloudflare", "ifood", "99", "telegram"]
 
 
-JSON_FILE = "downdetector_status.json"
-
+JSON_FILE = "/app/data/downdetector_status.json"
 
 css_script = 'script[type="text/javascript"]:contains("{ x:")::text'
 
@@ -48,15 +50,15 @@ def get_site(url):
                 f'https://downdetector.com.br/fora-do-ar/{url}/',
                 solve_cloudflare=True,
                 block_webrtc=True,
-                real_chrome=True,
+                real_chrome=False,
                 hide_canvas=True,
                 google_search=True,
-                headless=False,
+                headless=True,
                 allow_webgl=False,
-                wait=1000,
+                wait=2000,
                 wait_selector='script[type="text/javascript"]',
                 wait_selector_state='attached',
-                timeout=10000
+                timeout=20000
             )
         except Exception as e:
             logger.error("erro no fetch", extra={
@@ -87,11 +89,18 @@ def get_site(url):
         return browser
 
     raise Exception(f"falha apos {max_attempts} tentativas: {url}")
-        
+       
+
+def fetch_in_thread(url):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+        future = executor.submit(get_site, url)
+        return future.result()
+
 def get_script():
     for url in companies:
         try:
-            page = get_site(url)
+            page = fetch_in_thread(url)
+            #page = get_site(url, False)
 
             if not page:
                 continue
@@ -118,6 +127,8 @@ def get_script():
                 "error": str(e),
                 "event": "unexpected_error"
             })
+        finally:
+            time.sleep(random.uniform(5, 15))
 
     upsert_status(downdetector)
 
@@ -141,8 +152,10 @@ def load_json(filepath):
 
 
 def save_json(filepath, data):
-    with open(filepath, "w", encoding="utf-8") as f:
+    tmp = filepath + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, filepath)
 
 
 def upsert_status(new_entries: list):
@@ -176,4 +189,15 @@ def upsert_status(new_entries: list):
     })
 
 if __name__ == "__main__":
-    get_script()
+    while True:
+        start = time.time()
+
+        downdetector.clear()
+        get_script()
+
+        duration = time.time() - start
+        logger.info("execucao_finalizada", extra={
+            "duracao_segundos": round(duration, 2)
+        })
+
+        time.sleep(1200)
