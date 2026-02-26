@@ -1,7 +1,7 @@
 [project]
 name = "downdetector"
 version = "0.1.0"
-description = "Add your description here"
+description = "dalhe"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [

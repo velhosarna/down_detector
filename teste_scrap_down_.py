@@ -9,13 +9,16 @@ from pythonjsonlogger import jsonlogger
 import time 
 
 
-companies = ["pix", "sefaz", "nota-fiscal-eletronica",
-             "cielo", "rede", "pagseguro",
-             "mercadopago", "aws-amazon-web-services", "windows-azure",
-             "cloudflare", "ifood", "99", "telegram"]
+# companies = ["pix", "sefaz", "nota-fiscal-eletronica",
+#              "cielo", "rede", "pagseguro",
+#              "mercadopago", "aws-amazon-web-services", "windows-azure",
+#              "cloudflare", "ifood", "99", "telegram"]
 
+companies = ["pix"]
 
-JSON_FILE = "/app/data/downdetector_status.json"
+# JSON_FILE = "/app/data/downdetector_status.json"
+
+JSON_FILE = "downdetector_status.json"
 
 css_script = 'script[type="text/javascript"]:contains("{ x:")::text'
 
@@ -25,7 +28,7 @@ downdetector = []
 
 def setup_logger():
     logging.getLogger("scrapling").setLevel(logging.CRITICAL)
-
+    
     logger = logging.getLogger("downdetector")
     logger.setLevel(logging.INFO)
 
@@ -48,7 +51,8 @@ def get_site(url):
 
     while attempts < max_attempts:
         attempts += 1
-
+        StealthyFetcher.keep_comments = False
+        StealthyFetcher.keep_cdata = False
         try:
             browser = StealthyFetcher.fetch(
                 f'https://downdetector.com.br/fora-do-ar/{url}/',
@@ -57,7 +61,7 @@ def get_site(url):
                 real_chrome=False,
                 hide_canvas=True,
                 google_search=True,
-                headless=True,
+                headless=False,
                 allow_webgl=False,
                 wait=2000,
                 wait_selector='script[type="text/javascript"]',
@@ -103,7 +107,8 @@ def fetch_in_thread(url):
 def get_script():
     for url in companies:
         try:
-            page = fetch_in_thread(url)
+            # page = fetch_in_thread(url) ### ATIVAR
+            page = get_site(url)
 
             if not page:
                 continue
@@ -195,15 +200,16 @@ def upsert_status(new_entries: list):
     })
 
 if __name__ == "__main__":
-    while True:
-        start = time.time()
+    get_script()
+    # while True:
+    #     start = time.time()
 
-        downdetector.clear()
-        get_script()
+    #     downdetector.clear()
+    #     get_script()
 
-        duration = time.time() - start
-        logger.info("execucao_finalizada", extra={
-            "duracao_segundos": round(duration, 2)
-        })
+    #     duration = time.time() - start
+    #     logger.info("execucao_finalizada", extra={
+    #         "duracao_segundos": round(duration, 2)
+    #     })
 
-        time.sleep(1200)
+    #     time.sleep(1200)
